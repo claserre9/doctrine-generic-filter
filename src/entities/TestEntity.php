@@ -2,187 +2,139 @@
 
 namespace App\entities;
 
-use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="users")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'test_entity')]
 class TestEntity
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
+    private int $id;
+    #[ORM\Column(type: 'string')]
+    private string $name;
+    #[ORM\Column(type: 'integer')]
+    private int $age;
+    #[ORM\Column(type: 'string')]
+    private string $email;
+    #[ORM\Column(type: 'string')]
+    private string $password;
+    #[ORM\Column(type: 'string')]
+    private string $address;
+    #[ORM\Column(type: 'string')]
+    private string $city;
+    #[ORM\Column(type: 'string')]
+    private string $country;
+    #[ORM\Column(type: 'string', nullable: true)]
+    private string $phone;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $firstName;
+    #[ORM\Column(type: 'datetime')]
+    private Datetime $birthday;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $lastName;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $age;
-
-    /**
-     * @ORM\Column(type="string", length=15, nullable=true)
-     */
-    private $phoneNumber;
-
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    private $dateOfBirth;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $haveChildren;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $dateCreated;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $dateUpdated;
-
-    public function __construct()
+    public function getBirthday(): DateTime
     {
-        $this->dateCreated = new DateTime();
-        $this->dateUpdated = new DateTime();
+        return $this->birthday;
     }
 
-    public function getId(): ?int
+    public function setBirthday(DateTime $birthday): TestEntity
     {
+        $this->birthday = $birthday;
+        return $this;
+    }
+
+    public function getId(): int{
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getFirstName()
+    public function getName(): string
     {
-        return $this->firstName;
+        return $this->name;
     }
 
-    /**
-     * @param mixed $firstName
-     * @return TestEntity
-     */
-    public function setFirstName($firstName)
+    public function setName(string $name): TestEntity
     {
-        $this->firstName = $firstName;
-
+        $this->name = $name;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getLastName()
-    {
-        return $this->lastName;
-    }
-
-    /**
-     * @param mixed $lastName
-     * @return TestEntity
-     */
-    public function setLastName($lastName)
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAge()
+    public function getAge(): int
     {
         return $this->age;
     }
 
-    /**
-     * @param mixed $age
-     * @return TestEntity
-     */
-    public function setAge($age)
+    public function setAge(int $age): TestEntity
     {
         $this->age = $age;
-
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPhoneNumber()
+    public function getEmail(): string
     {
-        return $this->phoneNumber;
+        return $this->email;
     }
 
-    /**
-     * @param mixed $phoneNumber
-     * @return TestEntity
-     */
-    public function setPhoneNumber($phoneNumber)
+    public function setEmail(string $email): TestEntity
     {
-        $this->phoneNumber = $phoneNumber;
-
+        $this->email = $email;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDateOfBirth()
+    public function getPassword(): string
     {
-        return $this->dateOfBirth;
+        return $this->password;
     }
 
-    /**
-     * @param mixed $dateOfBirth
-     * @return TestEntity
-     */
-    public function setDateOfBirth($dateOfBirth)
+    public function setPassword(string $password): TestEntity
     {
-        $this->dateOfBirth = $dateOfBirth;
-
+        $this->password = $password;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getHaveChildren()
+    public function getAddress(): string
     {
-        return $this->haveChildren;
+        return $this->address;
     }
 
-    /**
-     * @param mixed $haveChildren
-     * @return TestEntity
-     */
-    public function setHaveChildren($haveChildren)
+    public function setAddress(string $address): TestEntity
     {
-        $this->haveChildren = $haveChildren;
-
+        $this->address = $address;
         return $this;
     }
 
+    public function getCity(): string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): TestEntity
+    {
+        $this->city = $city;
+        return $this;
+    }
+
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): TestEntity
+    {
+        $this->country = $country;
+        return $this;
+    }
+
+    public function getPhone(): string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): TestEntity
+    {
+        $this->phone = $phone;
+        return $this;
+    }
 
 }
 
