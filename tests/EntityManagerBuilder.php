@@ -1,7 +1,5 @@
 <?php
-
-namespace App;
-
+namespace Tests;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Tools\DsnParser;
@@ -19,17 +17,16 @@ class EntityManagerBuilder
      * @param array $entitiesPath An array of paths to the entities.
      *      Defaults to the "../src" directory.
      * @return EntityManager|null The entity manager instance.
+     * @throws Exception | MissingMappingDriverImplementation
      */
-    public static function getEntityManager(string $dsn = 'pdo-sqlite:///db.sqlite', array $entitiesPath = array(__DIR__ . '/../src')): ?EntityManager
+    public static function getEntityManager(
+        string $dsn = 'mysqli://root:@localhost/test',
+        array $entitiesPath = array(__DIR__ . '/../tests')): ?EntityManager
     {
         $config = ORMSetup::createAttributeMetadataConfiguration(paths: $entitiesPath, isDevMode: true,);
         $dsnParser = new DsnParser();
         $connectionParams = $dsnParser->parse($dsn);
-        try {
-            $connection = DriverManager::getConnection($connectionParams);
-            return new EntityManager($connection, $config);
-        } catch (Exception|MissingMappingDriverImplementation $e) {
-            exit($e->getMessage() . PHP_EOL);
-        }
+        $connection = DriverManager::getConnection($connectionParams);
+        return new EntityManager($connection, $config);
     }
 }

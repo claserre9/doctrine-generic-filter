@@ -1,13 +1,13 @@
 <?php
 
-namespace App\entities;
+namespace Tests\entities;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'test_entity')]
-class TestEntity
+#[ORM\Table(name: 'user')]
+class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
@@ -38,13 +38,14 @@ class TestEntity
         return $this->birthday;
     }
 
-    public function setBirthday(DateTime $birthday): TestEntity
+    public function setBirthday(DateTime $birthday): User
     {
         $this->birthday = $birthday;
         return $this;
     }
 
-    public function getId(): int{
+    public function getId(): int
+    {
         return $this->id;
     }
 
@@ -53,7 +54,7 @@ class TestEntity
         return $this->name;
     }
 
-    public function setName(string $name): TestEntity
+    public function setName(string $name): User
     {
         $this->name = $name;
         return $this;
@@ -64,7 +65,7 @@ class TestEntity
         return $this->age;
     }
 
-    public function setAge(int $age): TestEntity
+    public function setAge(int $age): User
     {
         $this->age = $age;
         return $this;
@@ -75,7 +76,7 @@ class TestEntity
         return $this->email;
     }
 
-    public function setEmail(string $email): TestEntity
+    public function setEmail(string $email): User
     {
         $this->email = $email;
         return $this;
@@ -86,7 +87,7 @@ class TestEntity
         return $this->password;
     }
 
-    public function setPassword(string $password): TestEntity
+    public function setPassword(string $password): User
     {
         $this->password = $password;
         return $this;
@@ -97,7 +98,7 @@ class TestEntity
         return $this->address;
     }
 
-    public function setAddress(string $address): TestEntity
+    public function setAddress(string $address): User
     {
         $this->address = $address;
         return $this;
@@ -108,7 +109,7 @@ class TestEntity
         return $this->city;
     }
 
-    public function setCity(string $city): TestEntity
+    public function setCity(string $city): User
     {
         $this->city = $city;
         return $this;
@@ -119,7 +120,7 @@ class TestEntity
         return $this->country;
     }
 
-    public function setCountry(string $country): TestEntity
+    public function setCountry(string $country): User
     {
         $this->country = $country;
         return $this;
@@ -130,7 +131,7 @@ class TestEntity
         return $this->phone;
     }
 
-    public function setPhone(string $phone): TestEntity
+    public function setPhone(string $phone): User
     {
         $this->phone = $phone;
         return $this;
