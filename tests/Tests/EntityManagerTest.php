@@ -14,7 +14,8 @@ class EntityManagerTest extends TestCase
      */
     public function testGetEntityManagerWithDefaultParameters()
     {;
-        $entityManager = EntityManagerBuilder::getEntityManager();
+        $dsn = $_ENV['DSN'];
+        $entityManager = EntityManagerBuilder::getEntityManager($dsn);
         $this->assertInstanceOf(EntityManager::class, $entityManager);
     }
 

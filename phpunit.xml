@@ -1,42 +1,11 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
-         bootstrap="tests/bootstrap.php"
-         verbose="true"
-         colors="true"
-         stopOnError="false"
-         stopOnFailure="false"
-         stopOnIncomplete="false"
-         stopOnSkipped="false">
+         bootstrap="/tests/bootstrap.php"
+         colors="true">
 
-    <!-- Directory containing your test files -->
     <testsuites>
         <testsuite name="My Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-
-    <!-- Code coverage configuration (optional) -->
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
-
-    <!-- Text and HTML code coverage reports (optional) -->
-    <logging>
-        <log type="coverage-text" target="php://stdout"/>
-        <log type="coverage-html" target="coverage-report" charset="UTF-8"/>
-    </logging>
-
-    <!-- PHPUnit extensions or custom test suite configurations (optional) -->
-    <!-- <extensions>
-        <extension class="My\Custom\PHPUnit\Extension"/>
-    </extensions> -->
-
-    <!-- PHP configuration (optional) -->
-    <php>
-        <ini name="error_reporting" value="-1"/>
-        <server name="KERNEL_DIR" value="src/"/>
-    </php>
-
 </phpunit>

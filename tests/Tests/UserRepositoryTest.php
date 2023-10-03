@@ -24,7 +24,8 @@ class UserRepositoryTest extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
-        self::$entityManager = EntityManagerBuilder::getEntityManager();
+        $dsn = $_ENV['DSN'];
+        self::$entityManager = EntityManagerBuilder::getEntityManager($dsn);
 
     }
 
