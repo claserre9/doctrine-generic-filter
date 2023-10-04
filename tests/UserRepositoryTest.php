@@ -24,8 +24,7 @@ class UserRepositoryTest extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
-        $dsn = $_ENV['DSN'];
-        self::$entityManager = EntityManagerBuilder::getEntityManager($dsn);
+        self::$entityManager = EntityManagerBuilder::getEntityManager();
 
     }
 
@@ -41,24 +40,18 @@ class UserRepositoryTest extends TestCase
             ->setName('Test Entity')
             ->setAge(100)
             ->setEmail('admin@localhost')
-            ->setPassword("12345678")
-            ->setAddress("Test Address")
-            ->setCity("Test City")
+            ->setGender('Male')
             ->setCountry("Test Country")
             ->setPhone("1234567890")
             ->setBirthday(new DateTime())
         ;
 
 
-
         self::$entityManager->persist($entity);
         self::$entityManager->flush();
 
-
-
         $repository = self::$entityManager->getRepository(User::class);
         $persistedEntity = $repository->findOneBy(['name' => 'Test Entity']);
-
 
         $this->assertInstanceOf(User::class, $persistedEntity);
         $this->assertEquals('Test Entity', $persistedEntity->getName());
@@ -72,14 +65,13 @@ class UserRepositoryTest extends TestCase
         $entity = self::$entityManager->getRepository(User::class)->findOneBy(['id' => 1]);
         $this->assertInstanceOf(User::class, $entity);
     }
-
     /**
      * @throws Exception
      */
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
-        self::$entityManager->getConnection()->executeQuery("TRUNCATE TABLE user");
+        self::$entityManager->getConnection()->rollBack();
     }
 
 }
