@@ -25,6 +25,7 @@ class UserRepositoryTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$entityManager = EntityManagerBuilder::getEntityManager();
+        self::$entityManager->getConnection()->beginTransaction();
 
     }
 
@@ -70,7 +71,6 @@ class UserRepositoryTest extends TestCase
      */
     public static function tearDownAfterClass(): void
     {
-        parent::tearDownAfterClass();
         self::$entityManager->getConnection()->rollBack();
     }
 
