@@ -23,10 +23,15 @@ class GenericRepository
      * @param int $page The page number to retrieve.
      * @param int $limit The maximum number of results per page.
      * @param array $queryParams Additional query parameters.
-     * @throws Exception
      * @return array The paginated results.
+     * @throws \Doctrine\DBAL\Exception|\Exception | \Error
      */
-    public function getPaginatedResults(string $entityClass, int $page = 1, int $limit = 10, array $queryParams = []): array {
+    public function getPaginatedResults(
+        string $entityClass,
+        int $page = 1,
+        int $limit = 10,
+        array $queryParams = []
+    ): array {
         $queryBuilder = $this->entityManager->createQueryBuilder();
 
         $page = $queryParams['page'] ?? $page;
@@ -60,7 +65,10 @@ class GenericRepository
      * @throws Exception
      * @return array The non-paginated results.
      */
-    public function getResults(string $entityClass, array $queryParams = []): array
+    public function getResults(
+        string $entityClass,
+        array $queryParams = []
+    ): array
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
 
@@ -75,10 +83,14 @@ class GenericRepository
      * @param string $alias The alias for the entity class.
      * @param string $entityClass The fully qualified class name of the entity.
      * @param array $queryParams An array of query parameters.
-     * @throws Exception A description of the exception that can be thrown.
+     * @throws Exception
      * @return void
      */
-    private function applyFilters(QueryBuilder $queryBuilder, string $alias, string $entityClass, array $queryParams): void
+    private function applyFilters(
+        QueryBuilder $queryBuilder,
+        string $alias,
+        string $entityClass,
+        array $queryParams): void
     {
         $queryBuilder
             ->select($alias)
@@ -89,8 +101,12 @@ class GenericRepository
             $field = "$alias.$queryParam";
 
             foreach ($expression as $operator => $value) {
+                $paramName = 'value' . $parameterIndex++;
                 if (in_array(strtolower($operator), ['in', 'notin'])) {
-                    $value = explode(',', $value);
+                    if (!is_array($value)){
+                        $value = str_replace(' ', '', $value);
+                        $value = array_values(explode(',', $value)) ;
+                    }
                 } elseif (in_array(strtolower($operator), ['like', 'notlike'])) {
                     $value = "%{$value}%";
                 } elseif ($operator === 'between') {
@@ -104,7 +120,7 @@ class GenericRepository
                         ->setParameter($endParamName, $endValue);
                     continue;
                 }
-                $paramName = 'value' . $parameterIndex++;
+
                 $queryBuilder
                     ->andWhere($queryBuilder->expr()->$operator($field, ":$paramName"))
                     ->setParameter($paramName, $value);
