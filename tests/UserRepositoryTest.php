@@ -24,7 +24,9 @@ class UserRepositoryTest extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
-        self::$entityManager = EntityManagerBuilder::getEntityManager();
+        DotEnvLoader::loadEnvironment();
+
+        self::$entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
         self::$entityManager->getConnection()->beginTransaction();
 
     }

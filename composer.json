@@ -28,6 +28,6 @@
         "fakerphp/faker": "^1.23"
     },
     "scripts": {
-        "test" : " php vendor/bin/phpunit --bootstrap bootstrap.php"
+        "test" : " php vendor/bin/phpunit --testdox tests"
     }
 }

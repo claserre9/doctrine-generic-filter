@@ -23,8 +23,8 @@ class GenericRepository
      * @param int $page The page number to retrieve.
      * @param int $limit The maximum number of results per page.
      * @param array $queryParams Additional query parameters.
-     * @throws Exception
      * @return array The paginated results.
+     * @throws \Doctrine\DBAL\Exception|\Exception | \Error
      */
     public function getPaginatedResults(
         string $entityClass,
@@ -101,8 +101,12 @@ class GenericRepository
             $field = "$alias.$queryParam";
 
             foreach ($expression as $operator => $value) {
+                $paramName = 'value' . $parameterIndex++;
                 if (in_array(strtolower($operator), ['in', 'notin'])) {
-                    $value = explode(',', $value);
+                    if (!is_array($value)){
+                        $value = str_replace(' ', '', $value);
+                        $value = array_values(explode(',', $value)) ;
+                    }
                 } elseif (in_array(strtolower($operator), ['like', 'notlike'])) {
                     $value = "%{$value}%";
                 } elseif ($operator === 'between') {
@@ -116,7 +120,7 @@ class GenericRepository
                         ->setParameter($endParamName, $endValue);
                     continue;
                 }
-                $paramName = 'value' . $parameterIndex++;
+
                 $queryBuilder
                     ->andWhere($queryBuilder->expr()->$operator($field, ":$paramName"))
                     ->setParameter($paramName, $value);

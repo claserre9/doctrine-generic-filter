@@ -4,9 +4,9 @@ require __DIR__."/../vendor/autoload.php";
 
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
-use Tests\EntityManagerBuilder;
+use Tests\EntityManagerFactory;
 
-$entityManager = EntityManagerBuilder::getEntityManager();
+$entityManager = EntityManagerFactory::getEntityManager();
 ConsoleRunner::run(
     new SingleManagerProvider($entityManager)
 );

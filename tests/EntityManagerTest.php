@@ -8,15 +8,23 @@ use PHPUnit\Framework\TestCase;
 
 class EntityManagerTest extends TestCase
 {
+
+    public static EntityManager $entityManager;
+
+    public static function setUpBeforeClass(): void
+    {
+        DotEnvLoader::loadEnvironment();
+    }
+
     /**
      * @throws MissingMappingDriverImplementation
      * @throws Exception
      */
     public function testGetEntityManagerWithDefaultParameters()
-    {;
+    {
 
-        $entityManager = EntityManagerBuilder::getEntityManager();
-        $this->assertInstanceOf(EntityManager::class, $entityManager);
+        self::$entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
+        $this->assertInstanceOf(EntityManager::class, self::$entityManager);
     }
 
 
@@ -28,6 +36,6 @@ class EntityManagerTest extends TestCase
     {
         $dsn = 'invalid-dsn';
         $this->expectException(Exception::class);
-        EntityManagerBuilder::getEntityManager($dsn);
+        EntityManagerFactory::getEntityManager($dsn);
     }
 }

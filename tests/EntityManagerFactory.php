@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\ORM\ORMSetup;
 
-class EntityManagerBuilder
+class EntityManagerFactory
 {
     /**
      * Retrieves the entity manager.
