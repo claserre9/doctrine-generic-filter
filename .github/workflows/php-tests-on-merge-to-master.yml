@@ -1,4 +1,4 @@
-name: PHP Test with Database Setup
+name: Run PHPUnit Tests
 
 on:
   push:
