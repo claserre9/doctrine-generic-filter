@@ -1,14 +1,17 @@
 <?php
 
 namespace App;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Exception;
 
-
 class GenericRepository
 {
+    private const DEFAULT_PAGE = 1;
+    private const DEFAULT_LIMIT = 10;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -16,96 +19,49 @@ class GenericRepository
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * Retrieves paginated results for a given entity class.
-     *
-     * @param string $entityClass The class name of the entity.
-     * @param int $page The page number to retrieve.
-     * @param int $limit The maximum number of results per page.
-     * @param array $queryParams Additional query parameters.
-     * @return array The paginated results.
-     * @throws \Doctrine\DBAL\Exception|\Exception | \Error
-     */
-    public function getPaginatedResults(
-        string $entityClass,
-        int $page = 1,
-        int $limit = 10,
-        array $queryParams = []
-    ): array {
+    public function getPaginatedResults(string $entityClass, int $page = self::DEFAULT_PAGE, int $limit = self::DEFAULT_LIMIT, ?array $filters = [], ?array $orderBy = []): array
+    {
         $queryBuilder = $this->entityManager->createQueryBuilder();
-
-        $page = $queryParams['page'] ?? $page;
-        $limit = $queryParams['limit'] ?? $limit;
-        unset($queryParams['page'], $queryParams['limit']);
-
+        $page = $filters['page'] ?? $page;
+        $limit = $filters['limit'] ?? $limit;
+        unset($filters['page'], $filters['limit']);
         $alias = 'x';
-        $this->applyFilters($queryBuilder, $alias, $entityClass, $queryParams);
-        $query = $queryBuilder->getQuery()
-            ->setFirstResult($limit * ($page - 1))
-            ->setMaxResults($limit);
-
+        $this->applyFilters($queryBuilder, $alias, $entityClass, $filters);
+        // Add ORDER BY clause if orderBy is provided
+        $this->applyOrderBy($orderBy, $queryBuilder, $alias);
+        $query = $queryBuilder->getQuery()->setFirstResult($limit * ($page - 1))->setMaxResults($limit)
+        ;
         $paginator = new Paginator($query);
         $total = count($paginator);
-        $totalPages = ceil($total / $limit);
+        $totalPages = intval(ceil($total / $limit));
         $results = $paginator->getQuery()->getResult();
-
-        return [
-            "total" => $paginator->count(),
-            "currentPage" => $page,
-            "totalPages" => $totalPages,
-            "results" => $results
-        ];
+        return $this->paginate($results, $total, $limit, $page, $totalPages);
     }
 
-    /**
-     * Retrieves non-paginated results from the specified entity class based on the provided query parameters.
-     *
-     * @param string $entityClass The fully qualified class name of the entity.
-     * @param array $queryParams An array of query parameters.
-     * @throws Exception
-     * @return array The non-paginated results.
-     */
-    public function getResults(
-        string $entityClass,
-        array $queryParams = []
-    ): array
+    public function getResults(string $entityClass, ?array $filters = [], ?array $orderBy = []): array
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
-
         $alias = 'y';
-        $this->applyFilters($queryBuilder, $alias, $entityClass, $queryParams);
-        return $queryBuilder->getQuery()->getResult();
+        $this->applyFilters($queryBuilder, $alias, $entityClass, $filters);
+        // Add ORDER BY clause if orderBy is provided
+        $this->applyOrderBy($orderBy, $queryBuilder, $alias);
+        $results = $queryBuilder->getQuery()->getResult();
+        return ["data" => $results];
     }
-    /**
-     * Apply filters to the query builder.
-     *
-     * @param QueryBuilder $queryBuilder The query builder object.
-     * @param string $alias The alias for the entity class.
-     * @param string $entityClass The fully qualified class name of the entity.
-     * @param array $queryParams An array of query parameters.
-     * @throws Exception
-     * @return void
-     */
-    private function applyFilters(
-        QueryBuilder $queryBuilder,
-        string $alias,
-        string $entityClass,
-        array $queryParams): void
+
+    private function applyFilters(QueryBuilder $queryBuilder, string $alias, string $entityClass, array $filters): void
     {
-        $queryBuilder
-            ->select($alias)
-            ->from($entityClass, $alias);
-
+        $queryBuilder->select($alias)->from($entityClass, $alias)
+        ;
         $parameterIndex = 0;
-        foreach ($queryParams as $queryParam => $expression) {
+        foreach ($filters as $queryParam => $expression) {
             $field = "$alias.$queryParam";
-
             foreach ($expression as $operator => $value) {
                 $paramName = 'value' . $parameterIndex++;
                 if (in_array(strtolower($operator), ['in', 'notin'])) {
-                    if (!is_array($value)){
+                    if (!is_array($value)) {
                         $value = str_replace(' ', '', $value);
-                        $value = array_values(explode(',', $value)) ;
+                        $value = array_values(explode(',', $value));
                     }
                 } elseif (in_array(strtolower($operator), ['like', 'notlike'])) {
                     $value = "%{$value}%";
@@ -114,16 +70,50 @@ class GenericRepository
                     $endValue = $value['end'];
                     $startParamName = 'value' . $parameterIndex++;
                     $endParamName = 'value' . $parameterIndex++;
-                    $queryBuilder
-                        ->andWhere($queryBuilder->expr()->between($field, ":$startParamName", ":$endParamName"))
-                        ->setParameter($startParamName, $startValue)
-                        ->setParameter($endParamName, $endValue);
+                    $queryBuilder->andWhere($queryBuilder->expr()->between($field, ":$startParamName", ":$endParamName"))->setParameter($startParamName, $startValue)->setParameter($endParamName, $endValue)
+                    ;
                     continue;
                 }
+                $queryBuilder->andWhere($queryBuilder->expr()->$operator($field, ":$paramName"))->setParameter($paramName, $value)
+                ;
+            }
+        }
+    }
 
-                $queryBuilder
-                    ->andWhere($queryBuilder->expr()->$operator($field, ":$paramName"))
-                    ->setParameter($paramName, $value);
+    /**
+     * @param mixed $results
+     * @param int $total
+     * @param mixed $limit
+     * @param mixed $page
+     * @param int $totalPages
+     * @return array
+     */
+    private function paginate(mixed $results, int $total, mixed $limit, mixed $page, int $totalPages): array
+    {
+        return [
+            "data" => $results,
+            "meta" => [
+                "total" => $total,
+                "perPage" => $limit,
+                "currentPage" => $page,
+                "lastPage" => $totalPages,
+                "from" => min(($page - 1) * $limit + 1, $total),
+                "to" => min($page * $limit, $total),
+                ],
+            ];
+    }
+
+    /**
+     * @param array|null $orderBy
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
+     * @param string $alias
+     * @return void
+     */
+    private function applyOrderBy(?array $orderBy, QueryBuilder $queryBuilder, string $alias): void
+    {
+        if (is_array($orderBy)) {
+            foreach ($orderBy as $column => $direction) {
+                $queryBuilder->addOrderBy("$alias.$column", $direction);
             }
         }
     }

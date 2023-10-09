@@ -42,6 +42,12 @@ class GenericRepositoryTest extends TestCase
 
     }
 
+    public function testGetPaginatedResultsHaveSpecifiedKeysInResult()
+    {
+        $results = self::$genericRepository->getPaginatedResults(User::class);
+        $this->assertResultKeys($results);
+    }
+
     /**
      * @throws \Exception
      */
@@ -50,7 +56,7 @@ class GenericRepositoryTest extends TestCase
 
         $queryParams = ['gender' => ["eq" => 'Male'],];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 497, 1, 50, 10);
+        $this->assertResult($results, 497, 50);
     }
 
 
@@ -61,80 +67,101 @@ class GenericRepositoryTest extends TestCase
     {
         $queryParams = ['gender' => ["neq" => 'Male'],];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 503, 1, 51, 10);
+        $this->assertResult($results, 503, 51);
 
     }
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsForAgeWithLessThanOrEqual(){
+    public function testGetPaginatedResultsForAgeWithLessThanOrEqual()
+    {
         $queryParams = ['age' => ["lte" => 20]];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 90, 1, 9, 10);
+        $this->assertResult($results, 90, 9 );
     }
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsForAgeWithGreaterThanOrEqual(){
+    public function testGetPaginatedResultsForAgeWithGreaterThanOrEqual()
+    {
         $queryParams = ['age' => ["gte" => 20]];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 928, 1, 93, 10);
+        $this->assertResult($results, 928, 93 );
     }
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsForAgeWithGreaterThanOrEqualAndLessThan(){
+    public function testGetPaginatedResultsForAgeWithGreaterThanOrEqualAndLessThan()
+    {
         $queryParams = ['age' => ["gte" => 20, "lt" => 30]];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 177, 1, 18, 10);
+        $this->assertResult($results, 177, 18);
     }
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsForAgeWithBetween(){
+    public function testGetPaginatedResultsForAgeWithBetween()
+    {
         $queryParams = ['age' => ["between" => ["start" => 20, "end" => 30]]];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 198, 1, 20, 10);
+        $this->assertResult($results, 198, 20);
     }
 
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsForAgeWithInExpressionWithArray(){
-        $queryParams = [
-            'country' => ["in" => ["China", "Indonesia"]]
-        ];
+    public function testGetPaginatedResultsForAgeWithInExpressionWithArray()
+    {
+        $queryParams = ['country' => ["in" => ["China", "Indonesia"]]];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 301, 1, 31, 10);
+        $this->assertResult($results, 301, 31);
     }
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsForAgeWithInExpressionWithString(){
-        $queryParams = [
-            'country' => ["in" => "China, Indonesia"]
-        ];
+    public function testGetPaginatedResultsForAgeWithInExpressionWithString()
+    {
+        $queryParams = ['country' => ["in" => "China, Indonesia"]];
         $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
-        $this->assertResult($results, 301, 1, 31, 10);
+        $this->assertResult($results, 301, 31);
     }
 
     /**
      * @throws \Exception
      */
-    public function testGetPaginatedResultsWithInvalidExpression(){
-        $queryParams = [
-            'country' => ["invalidExpression" => ["China", "Indonesia"]]
-        ];
+    public function testGetPaginatedResultsWithInvalidExpression()
+    {
+        $queryParams = ['country' => ["invalidExpression" => ["China", "Indonesia"]]];
         $this->expectException(Error::class);
         self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
     }
 
+    public function testGetPaginatedResultsForSortingByAge(){
+        $orderBy = [
+            'age' => 'DESC',
+            'id' => 'DESC'
+        ];
+
+        $queryParams = [
+            'country' => ['eq' => 'China'],
+            'gender' => ['eq' => 'Male'],
+        ];
+
+        $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams, $orderBy);
+        /** @var User $firstUser */
+        $firstUser = $results['data'][0];
+        $this->assertEquals(594, $firstUser->getId());
+        $this->assertEquals(75, $firstUser->getAge());
+        $this->assertEquals('China', $firstUser->getCountry());
+        $this->assertEquals('Male', $firstUser->getGender());
+        $this->assertEquals('Teador Toffetto', $firstUser->getName());
+    }
 
 
     /**
@@ -147,23 +174,34 @@ class GenericRepositoryTest extends TestCase
 
     /**
      * @param array $results
-     * @param $total
-     * @param $currentPage
+     * @param $totalItems
      * @param $totalPages
-     * @param $totalResults
+     * @param int $currentPage
+     * @param int $itemsPerPage
      * @return void
      */
-    private function assertResult(array $results, $total, $currentPage, $totalPages, $totalResults): void
+    private function assertResult(array $results, $totalItems, $totalPages, $currentPage = 1, $itemsPerPage = 10,): void
+    {
+        $this->assertEquals($totalItems, $results['meta']['total']);
+        $this->assertEquals($totalPages, $results['meta']['lastPage']);
+        $this->assertEquals($currentPage, $results['meta']['currentPage']);
+        $this->assertEquals($itemsPerPage, $results['meta']['perPage']);
+
+    }
+
+    private function assertResultKeys($results): void
     {
         $this->assertIsArray($results);
-        $this->assertArrayHasKey('total', $results);
-        $this->assertArrayHasKey('currentPage', $results);
-        $this->assertArrayHasKey('totalPages', $results);
-        $this->assertArrayHasKey('results', $results);
-        $this->assertEquals($total, $results['total']);
-        $this->assertEquals($currentPage, $results['currentPage']);
-        $this->assertEquals($totalPages, $results['totalPages']);
-        $this->assertCount($totalResults, $results['results']);
+        $this->assertArrayHasKey('data', $results);
+        $this->assertArrayHasKey('meta', $results);
+        $this->assertArrayHasKey('total', $results['meta']);
+        $this->assertArrayHasKey('perPage', $results['meta']);
+        $this->assertArrayHasKey('currentPage', $results['meta']);
+        $this->assertArrayHasKey('lastPage', $results['meta']);
+        $this->assertArrayHasKey('from', $results['meta']);
+        $this->assertArrayHasKey('to', $results['meta']);
+
+
     }
 
 }
