@@ -32,6 +32,10 @@ jobs:
           php-version: 8.2
           extensions: mysqli,pdo_mysql,pdo_pgsql,PDO,pgsql
 
+      - name: Install PHP Packages MysQL and PDO
+        run: |
+          sudo apt-get install php-mysql php-pdo
+
       - name: Install Composer Dependencies
         run: composer install
 
