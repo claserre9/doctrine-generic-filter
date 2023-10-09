@@ -35,6 +35,12 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install
 
+      - name: Wait for Database
+        run: |
+          # Wait for the database to become available
+          sudo apt-get -y install wait-for-it
+          wait-for-it -t 60 localhost:3306
+
       - name: Wait for MySQL to start
         run: sleep 10s
 
