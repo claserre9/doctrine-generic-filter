@@ -44,9 +44,9 @@ jobs:
           # Wait for the database to become available
           sudo apt-get -y install wait-for-it
           wait-for-it -t 60 localhost:3306
-
-      - name: Wait 10 secs for Database to be ready
-        run: sleep 10s
+#
+#      - name: Wait 10 secs for Database to be ready
+#        run: sleep 10s
 
       - name: Run Database Migrations
         run: php bin/doctrine orm:schema-tool:create
