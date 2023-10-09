@@ -49,7 +49,7 @@ jobs:
         run: sleep 10s
 
       - name: Run Database Migrations
-        run: php bin/doctrine orm:schema-tool:create
+        run: php vendor/bin/doctrine orm:schema-tool:create
 
       - name: Run PHPUnit Tests
         run: composer test
