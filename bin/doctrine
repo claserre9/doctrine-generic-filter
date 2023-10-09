@@ -10,7 +10,7 @@ use Tests\EntityManagerFactory;
 
 try {
     DotEnvLoader::loadEnvironment();
-    $entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
+    $entityManager = EntityManagerFactory::getEntityManager("mysqli://root:@localhost:3306/test");
     ConsoleRunner::run(
     new SingleManagerProvider($entityManager));
 }
