@@ -2,12 +2,21 @@
 <?php
 require __DIR__."/../vendor/autoload.php";
 
+use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Tests\DotEnvLoader;
 use Tests\EntityManagerFactory;
 
-$entityManager = EntityManagerFactory::getEntityManager();
-ConsoleRunner::run(
-    new SingleManagerProvider($entityManager)
-);
+try {
+    DotEnvLoader::loadEnvironment();
+    $entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
+    ConsoleRunner::run(
+    new SingleManagerProvider($entityManager));
+}
+catch (\Doctrine\DBAL\Exception|MissingMappingDriverImplementation $e) {
+    exit($e->getMessage()."\n");
+}
+
+
 
