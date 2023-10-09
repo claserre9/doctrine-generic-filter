@@ -1,6 +1,13 @@
 {
     "name": "laserre/doctrine-generic-filter",
     "description": "Provide a simple mechanism to filter doctrine queries",
+    "version": "1.0.0",
+    "keywords": [
+        "doctrine",
+        "orm",
+        "generic",
+        "filter"
+    ],
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -16,6 +23,7 @@
         }
     ],
     "require": {
+        "php": ">=8.2",
         "doctrine/orm": "^2.11.0",
         "doctrine/dbal": "^3.2",
         "symfony/yaml": "^5.4",
