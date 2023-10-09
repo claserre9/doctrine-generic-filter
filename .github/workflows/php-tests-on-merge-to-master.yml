@@ -1,4 +1,4 @@
-name: PHP Test
+name: PHP Test with Database Setup
 
 on:
   push:
@@ -9,6 +9,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -16,10 +26,16 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 7.4 # Adjust to your PHP version
 
       - name: Install Composer Dependencies
         run: composer install
 
+      - name: Wait for MySQL to start
+        run: sleep 10s
+
+      - name: Run Database Migrations (if applicable)
+        run: php bin/doctrine orm:schema-tool:create
+
       - name: Run PHPUnit Tests
-        run: composer test
+        run: php vendor/bin/phpunit
