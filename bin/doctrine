@@ -5,11 +5,10 @@ require __DIR__."/../vendor/autoload.php";
 use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
-use Tests\DotEnvLoader;
 use Tests\EntityManagerFactory;
 
 try {
-    DotEnvLoader::loadEnvironment();
+
     $entityManager = EntityManagerFactory::getEntityManager("mysqli://root:@localhost:3306/test");
     ConsoleRunner::run(
     new SingleManagerProvider($entityManager));
