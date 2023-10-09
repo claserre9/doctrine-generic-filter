@@ -22,7 +22,7 @@ class GenericRepositoryTest extends TestCase
     public static function setUpBeforeClass(): void
     {
 
-        DotEnvLoader::loadEnvironment();
+//        DotEnvLoader::loadEnvironment();
         self::$entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
         $connection = self::$entityManager->getConnection();
         // Truncate table

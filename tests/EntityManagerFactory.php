@@ -20,7 +20,7 @@ class EntityManagerFactory
      * @throws Exception | MissingMappingDriverImplementation
      */
     public static function getEntityManager(
-        string $dsn = 'mysqli://root:@localhost/test',
+        string $dsn = 'mysql://root:@localhost/test',
         array $entitiesPath = array(__DIR__ . '/entities')): ?EntityManager
     {
         $config = ORMSetup::createAttributeMetadataConfiguration(paths: $entitiesPath, isDevMode: true);

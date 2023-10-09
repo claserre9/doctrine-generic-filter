@@ -13,7 +13,7 @@ class EntityManagerTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        DotEnvLoader::loadEnvironment();
+//        DotEnvLoader::loadEnvironment();
     }
 
     /**

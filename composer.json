@@ -29,6 +29,6 @@
         "doctrine/doctrine-bundle": "^2.10"
     },
     "scripts": {
-        "test" : " php vendor/bin/phpunit --testdox tests"
+        "test" : " php vendor/bin/phpunit -c phpunit.xml --testdox tests"
     }
 }
