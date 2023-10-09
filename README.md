@@ -20,7 +20,7 @@ To use the `GenericRepository` class, you need to have the Doctrine ORM
 library set up in your PHP project. 
 
 ``` bash
-composer req claserre/doctrine-generic-filter
+composer req claserre9/doctrine-generic-filter
 ```
 
 ## Usage

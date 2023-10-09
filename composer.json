@@ -2,6 +2,8 @@
     "name": "claserre9/doctrine-generic-filter",
     "description": "Provide a simple mechanism to filter doctrine queries",
     "version": "1.0.0",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "keywords": [
         "doctrine",
         "orm",
