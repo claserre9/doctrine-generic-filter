@@ -34,7 +34,7 @@ jobs:
 
       - name: Install PHP Packages MysQL and PDO
         run: |
-          sudo apt-get install php-mysql php-pdo
+          sudo apt-get install php-mysql
 
       - name: Install Composer Dependencies
         run: composer install
