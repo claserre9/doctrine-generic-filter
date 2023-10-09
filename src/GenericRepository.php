@@ -19,7 +19,7 @@ class GenericRepository
         $this->entityManager = $entityManager;
     }
 
-    public function getPaginatedResults(string $entityClass, int $page = self::DEFAULT_PAGE, int $limit = self::DEFAULT_LIMIT, ?array $filters = [], ?array $orderBy = []): array
+    public function getPaginatedResults(string $entityClass, int $page = self::DEFAULT_PAGE, int $limit = self::DEFAULT_LIMIT, ?array $filters = []): array
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $page = $filters['page'] ?? $page;
@@ -27,10 +27,7 @@ class GenericRepository
         unset($filters['page'], $filters['limit']);
         $alias = 'x';
         $this->applyFilters($queryBuilder, $alias, $entityClass, $filters);
-        // Add ORDER BY clause if orderBy is provided
-        $this->applyOrderBy($orderBy, $queryBuilder, $alias);
-        $query = $queryBuilder->getQuery()->setFirstResult($limit * ($page - 1))->setMaxResults($limit)
-        ;
+        $query = $queryBuilder->getQuery()->setFirstResult($limit * ($page - 1))->setMaxResults($limit);
         $paginator = new Paginator($query);
         $total = count($paginator);
         $totalPages = intval(ceil($total / $limit));
@@ -38,13 +35,11 @@ class GenericRepository
         return $this->paginate($results, $total, $limit, $page, $totalPages);
     }
 
-    public function getResults(string $entityClass, ?array $filters = [], ?array $orderBy = []): array
+    public function getResults(string $entityClass, ?array $filters = []): array
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $alias = 'y';
         $this->applyFilters($queryBuilder, $alias, $entityClass, $filters);
-        // Add ORDER BY clause if orderBy is provided
-        $this->applyOrderBy($orderBy, $queryBuilder, $alias);
         $results = $queryBuilder->getQuery()->getResult();
         return ["data" => $results];
     }
@@ -58,6 +53,13 @@ class GenericRepository
             $field = "$alias.$queryParam";
             foreach ($expression as $operator => $value) {
                 $paramName = 'value' . $parameterIndex++;
+
+                if(strtolower(trim($operator)) === 'sort'){
+                    $direction = strtolower(trim($value));
+                    $queryBuilder->addOrderBy($field, $direction);
+                    continue;
+                }
+
                 if (in_array(strtolower($operator), ['in', 'notin'])) {
                     if (!is_array($value)) {
                         $value = str_replace(' ', '', $value);
@@ -101,20 +103,5 @@ class GenericRepository
                 "to" => min($page * $limit, $total),
                 ],
             ];
-    }
-
-    /**
-     * @param array|null $orderBy
-     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
-     * @param string $alias
-     * @return void
-     */
-    private function applyOrderBy(?array $orderBy, QueryBuilder $queryBuilder, string $alias): void
-    {
-        if (is_array($orderBy)) {
-            foreach ($orderBy as $column => $direction) {
-                $queryBuilder->addOrderBy("$alias.$column", $direction);
-            }
-        }
     }
 }

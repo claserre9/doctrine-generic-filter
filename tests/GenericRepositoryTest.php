@@ -151,17 +151,16 @@ class GenericRepositoryTest extends TestCase
     }
 
     public function testGetPaginatedResultsForSortingByAge(){
-        $orderBy = [
-            'age' => 'DESC',
-            'id' => 'DESC'
-        ];
+
 
         $queryParams = [
             'country' => ['eq' => 'China'],
             'gender' => ['eq' => 'Male'],
+            'age' =>['sort' => 'DESC'],
+            'id' => ['sort' => 'DESC'],
         ];
 
-        $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams, $orderBy);
+        $results = self::$genericRepository->getPaginatedResults(User::class, 1, 10, $queryParams);
         /** @var User $firstUser */
         $firstUser = $results['data'][0];
         $this->assertEquals(594, $firstUser->getId());
@@ -188,7 +187,7 @@ class GenericRepositoryTest extends TestCase
      * @param int $itemsPerPage
      * @return void
      */
-    private function assertResult(array $results, $totalItems, $totalPages, $currentPage = 1, $itemsPerPage = 10,): void
+    private function assertResult(array $results, $totalItems, $totalPages, int $currentPage = 1, int $itemsPerPage = 10,): void
     {
         $this->assertEquals($totalItems, $results['meta']['total']);
         $this->assertEquals($totalPages, $results['meta']['lastPage']);
