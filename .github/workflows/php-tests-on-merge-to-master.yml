@@ -34,8 +34,8 @@ jobs:
       - name: Wait for MySQL to start
         run: sleep 10s
 
-      - name: Run Database Migrations (if applicable)
+      - name: Run Database Migrations
         run: php bin/doctrine orm:schema-tool:create
 
       - name: Run PHPUnit Tests
-        run: php vendor/bin/phpunit
+        run: composer test

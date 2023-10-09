@@ -23,7 +23,7 @@ class EntityManagerFactory
         string $dsn = 'mysqli://root:@localhost/test',
         array $entitiesPath = array(__DIR__ . '/entities')): ?EntityManager
     {
-        $config = ORMSetup::createAttributeMetadataConfiguration(paths: $entitiesPath, isDevMode: true,);
+        $config = ORMSetup::createAttributeMetadataConfiguration(paths: $entitiesPath, isDevMode: true);
         $dsnParser = new DsnParser();
         $connectionParams = $dsnParser->parse($dsn);
         $connection = DriverManager::getConnection($connectionParams);
