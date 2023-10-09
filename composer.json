@@ -22,11 +22,7 @@
         "symfony/cache": "^5.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9",
-        "doctrine/data-fixtures": "^1.6",
-        "vlucas/phpdotenv": "^5.5",
-        "fakerphp/faker": "^1.23",
-        "doctrine/doctrine-bundle": "^2.10"
+        "phpunit/phpunit": "^9"
     },
     "scripts": {
         "test" : " php vendor/bin/phpunit -c phpunit.xml --testdox tests"

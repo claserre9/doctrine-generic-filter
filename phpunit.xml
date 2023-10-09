@@ -10,7 +10,8 @@
         <ini name="log_errors" value="1" />
         <ini name="error_log" value="php://stderr" />
 
-        <env name="DSN" value="mysqli://root:@localhost:3306/test"/>
+        <env name="DB_NAME" value="/data/db.sqlite"/>
+        <env name="DB_DRIVER" value="pdo_sqlite"/>
     </php>
 
 

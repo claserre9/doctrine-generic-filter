@@ -9,19 +9,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      DSN: mysqli://root:@localhost:3306/test
-
-    services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-          MYSQL_DATABASE: test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -30,26 +17,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
-          extensions: mysqli,pdo_mysql,pdo_pgsql,PDO,pgsql
-
-      - name: Install PHP Packages MysQL and PDO
-        run: |
-          sudo apt-get install php-mysql
+          extensions: pdo_mysql,pdo_sqlite
 
       - name: Install Composer Dependencies
         run: composer install
-
-      - name: Wait for Database
-        run: |
-          # Wait for the database to become available
-          sudo apt-get -y install wait-for-it
-          wait-for-it -t 60 localhost:3306
-#
-#      - name: Wait 10 secs for Database to be ready
-#        run: sleep 10s
-
-      - name: Run Database Migrations
-        run: php bin/doctrine orm:schema-tool:create
 
       - name: Run PHPUnit Tests
         run: composer test

@@ -8,6 +8,7 @@ use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\Tools\SchemaTool;
 use Tests\entities\User;
 use PHPUnit\Framework\TestCase;
 
@@ -15,19 +16,22 @@ use PHPUnit\Framework\TestCase;
 class UserRepositoryTest extends TestCase
 {
 
-    public static ?EntityManager $entityManager;
+    public static EntityManager $entityManager;
+    private static SchemaTool $schemaTool;
 
 
     /**
      * @throws MissingMappingDriverImplementation
-     * @throws Exception
+     * @throws Exception|\Doctrine\ORM\Tools\ToolsException
      */
     public static function setUpBeforeClass(): void
     {
-        //DotEnvLoader::loadEnvironment();
-
-        self::$entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
-        self::$entityManager->getConnection()->beginTransaction();
+        $dbParams = ["driver" => $_ENV["DB_DRIVER"], "database_name" => $_ENV["DB_NAME"],];
+        $entitiesPath = [__DIR__ . '/entities'];
+        self::$entityManager = EntityManagerFactory::getEntityManager($dbParams, $entitiesPath);
+        self::$schemaTool = new SchemaTool(self::$entityManager);
+        $metadata = self::$entityManager->getMetadataFactory()->getAllMetadata();
+        self::$schemaTool->createSchema($metadata);
 
     }
 
@@ -69,11 +73,11 @@ class UserRepositoryTest extends TestCase
         $this->assertInstanceOf(User::class, $entity);
     }
     /**
-     * @throws Exception
      */
     public static function tearDownAfterClass(): void
     {
-        self::$entityManager->getConnection()->rollBack();
+        // Drop the schema after all tests have run
+        self::$schemaTool->dropDatabase();
     }
 
 }

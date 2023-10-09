@@ -6,28 +6,36 @@ use App\GenericRepository;
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\MissingMappingDriverImplementation;
+use Doctrine\ORM\Tools\SchemaTool;
 use Error;
 use PHPUnit\Framework\TestCase;
 use Tests\entities\User;
 
 class GenericRepositoryTest extends TestCase
 {
-    public static ?EntityManager $entityManager;
+
+    public static EntityManager $entityManager;
+    private static SchemaTool $schemaTool;
     public static GenericRepository $genericRepository;
 
     /**
      * @throws MissingMappingDriverImplementation
      * @throws DBALException
+     * @throws \Doctrine\ORM\Tools\ToolsException
      */
     public static function setUpBeforeClass(): void
     {
 
-//        DotEnvLoader::loadEnvironment();
-        self::$entityManager = EntityManagerFactory::getEntityManager($_ENV["DSN"]);
+        $dbParams = ["driver" => $_ENV["DB_DRIVER"], "database_name" => $_ENV["DB_NAME"],];
+        $entitiesPath = [__DIR__ . '/entities'];
+        self::$entityManager = EntityManagerFactory::getEntityManager($dbParams, $entitiesPath);
+        self::$schemaTool = new SchemaTool(self::$entityManager);
+        $metadata = self::$entityManager->getMetadataFactory()->getAllMetadata();
+        self::$schemaTool->createSchema($metadata);
+
+
         $connection = self::$entityManager->getConnection();
-        // Truncate table
-        $connection->executeStatement("truncate table user");
-        // Load fixtures
+
         $sqlFile = __DIR__ . '/user.sql';
         $sqlQueries = file_get_contents($sqlFile);
         $queries = explode(';', $sqlQueries);
@@ -165,11 +173,11 @@ class GenericRepositoryTest extends TestCase
 
 
     /**
-     * @throws \Doctrine\DBAL\Exception
      */
     public static function tearDownAfterClass(): void
     {
-        self::$entityManager->getConnection()->executeStatement("truncate table user");
+        // Drop the schema after all tests have run
+        self::$schemaTool->dropDatabase();
     }
 
     /**
