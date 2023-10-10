@@ -129,7 +129,7 @@ $results = $genericRepository->getPaginatedResults(User::class, 1, 10, $filters)
 
 ```php
 /**
-* Multiple filters and order by
+* Multiple filters and sort
  */
 $orderBy = [
     'age' => 'DESC',
@@ -141,7 +141,7 @@ $filters = [
     'gender' => ['eq' => 'Male'],
 ];
 
-$results = $genericRepository->getPaginatedResults(User::class, 1, 10, $filters, $orderBy);
+$results = $genericRepository->getPaginatedResults(User::class, 1, 10, $filters);
 ```
 
 ## Contributing
