@@ -24,7 +24,7 @@ class EntityManagerFactory
      * @throws \Doctrine\DBAL\Exception
      * @throws \Doctrine\ORM\Exception\MissingMappingDriverImplementation
      */
-    public static function getEntityManager(array $dbParams, array $entitiesPath = [__DIR__ . '/../tests/']): ?EntityManager
+    public static function getEntityManager(array $dbParams, array $entitiesPath): ?EntityManager
     {
         if ($dbParams['driver'] === 'sqlite') {
             // For SQLite, adjust the connection parameters and path

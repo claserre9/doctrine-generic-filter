@@ -44,8 +44,7 @@ public function getPaginatedResults(
     string $entityClass,
     int $page = self::DEFAULT_PAGE,
     int $limit = self::DEFAULT_LIMIT,
-    ?array $filters = [],
-    ?array $orderBy = []
+    ?array $filters = []
 ): array
 ```
 
@@ -53,7 +52,6 @@ public function getPaginatedResults(
 - `$page` (int): The current page number (default is 1).
 - `$limit` (int): The number of results to fetch per page (default is 10).
 - `$filters` (array|null): An array of filters to apply to the query.
-- `$orderBy` (array|null): An array specifying the sorting order for the results.
 
 Returns an array containing the paginated results along with pagination metadata.
 
@@ -62,14 +60,12 @@ Returns an array containing the paginated results along with pagination metadata
 ```php
 public function getResults(
     string $entityClass,
-    ?array $filters = [],
-    ?array $orderBy = []
+    ?array $filters = []
 ): array
 ```
 
 `$entityClass` (string): The name of the entity for which you want to retrieve results.
 `$filters` (array|null): An array of filters to apply to the query.
-`$orderBy` (array|null): An array specifying the sorting order for the results.
 
 Returns an array containing the results without pagination.
 
@@ -82,10 +78,10 @@ Here are some examples of how to use the `GenericRepository` class:
 $repository = new GenericRepository($entityManager);
 
 // Example 1: Get paginated results with filters and ordering.
-$results = $repository->getPaginatedResults('Your\Entity\Class', 2, 15, ['column' => ['operator' => 'value']], ['column' => 'ASC']);
+$results = $repository->getPaginatedResults('Your\Entity\Class', 2, 15, ['column' => ['operator' => 'value']]);
 
 // Example 2: Get results without pagination with filters and ordering.
-$results = $repository->getResults('Your\Entity\Class', ['column' => ['operator' => 'value']], ['column' => 'ASC']);
+$results = $repository->getResults('Your\Entity\Class', ['column' => ['operator' => 'value']]);
 ```
 
 This is the list of all operators supported
@@ -99,6 +95,7 @@ This is the list of all operators supported
 - `in`
 - `notin` (not in)
 - `between`
+- `sort`
 
 ### Some concrete examples
 ```php
@@ -126,19 +123,18 @@ $results = $genericRepository->getPaginatedResults(User::class, 1, 20, $filters)
 $filters = ['age' => ["between" => ["start" => 20, "end" => 30]]];
 $results = $genericRepository->getPaginatedResults(User::class, 1, 10, $filters);
 ```
-
+We can also apply sort :
 ```php
 /**
 * Multiple filters and sort
  */
-$orderBy = [
-    'age' => 'DESC',
-    'id' => 'DESC'
-];
+
 
 $filters = [
     'country' => ['eq' => 'China'],
     'gender' => ['eq' => 'Male'],
+    'age' =>['sort' => 'DESC'],
+    'id' => ['sort' => 'DESC'],
 ];
 
 $results = $genericRepository->getPaginatedResults(User::class, 1, 10, $filters);
